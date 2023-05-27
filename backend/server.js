@@ -125,7 +125,7 @@ app.post("/getConversations", async (req, res) => {
   try {
     const id=req.body.id;   
     console.log(id+"get Conversation ");
-   
+    
     const conversation = await Conversation.find({ members: { $in: [id] } });
     const collectionName = Conversation.collection.name;
     console.log(collectionName);
@@ -142,16 +142,29 @@ app.post("/getConversations", async (req, res) => {
 app.post("/AddConversation", async (req, res) => {
   try {
     const myObj=req.body.myObject;
+    console.log(myObj);
     const frndEmail=req.body.scndEmail;
     const frndObject= await users.findOne({ email:frndEmail });
+    const objectIdString = frndObject._id.toString();
     if(frndObject)
     {
+      console.log(myObj._id);
+      console.log(frndObject._id);
+      console.log(objectIdString);
+      console.log("came add");
       const newConversationIs = new Conversation({
-  members: [myObj._id,frndObject._id]
+  members: [myObj._id,objectIdString]
 });
 
-    const savedConversation = await newConversationIs.save();
-    res.status(200).json(savedConversation);
+console.log("new is :");
+console.log(newConversationIs.members[0]);
+console.log(newConversationIs.members[1]);
+const savedConversation = await newConversationIs.save();
+console.log("saved is :");
+console.log(savedConversation.members[0]);
+console.log(savedConversation.members[1]);
+
+res.status(200).json(savedConversation);
 
     }
   } catch (err) {

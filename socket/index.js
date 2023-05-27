@@ -7,6 +7,7 @@ const io = require("socket.io")(8900, {
   let users = [];
   
   const addUser = (userId, socketId) => {
+    console.log(userId,socketId,"add User");
     !users.some((user) => user.userId === userId) &&
       users.push({ userId, socketId });
   };
@@ -16,6 +17,7 @@ const io = require("socket.io")(8900, {
   };
   
   const getUser = (userId) => {
+    console.log(userId);
     return users.find((user) => user.userId === userId);
   };
   
@@ -32,11 +34,17 @@ const io = require("socket.io")(8900, {
   
     //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+      console.log(senderId,receiverId,text);
       const user = getUser(receiverId);
-      io.to(user.socketId).emit("getMessage", {
-        senderId,
-        text,
-      });
+      if(user)
+      {
+        console.log(user);
+        io.to(user.socketId).emit("getMessage", {
+          senderId,
+          text,
+        });
+  
+      }
     });
   
     //when disconnect
