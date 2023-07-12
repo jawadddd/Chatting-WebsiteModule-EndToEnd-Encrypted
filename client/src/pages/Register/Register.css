@@ -3,21 +3,48 @@ form {
     margin: 10px auto;
 
     padding: 50px;
-    background-color: #f9f9f9;
+    background-color: transparent;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
     
   }
-  .outer{
-    
+  
+  .aaaa1{
+    display: flex;
     align-items: center;
+    width: 100%;
+    height:auto;
     justify-content: center;
     text-align: center;
+
+  }
+  .myyImg{
+    width:40%;
+    height:70%;
+    position: cover;
+  }
+  .videobg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    object-fit: cover;
+    z-index: -1;
   }
   h1{
     margin:auto;
     padding: 10%;
     
+  }
+  .auth-inner3{
+width:40%;
+height:90%;
+margin-top:3%;
+display: flex;
+align-items: center;
+justify-content: center;
   }
 form h2 {
     text-align: center;
@@ -28,6 +55,8 @@ form h2 {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
   }
   
   form input[type="text"],
@@ -48,12 +77,43 @@ form h2 {
     border-radius: 5px;
     cursor: pointer;
   }
-  
+.twooo22{
+  width:50vw;
+  height:100vh;
+
+}
+  .imagesIss2{
+    width: 100%;
+    height:100%;
+    
+    object-fit: cover;
+  }
   form button:hover {
     background-color: #0056b3;
   }
-  
+  .myback{
+    position:absolute;
+    top:0;
+    left:0;
+    height:100%;
+
+    width:100%;
+    z-index: -1;
+  }
   form button:focus {
     outline: none;
     box-shadow: 0 0 5px #007bff;
   }
+  @media only screen and (max-width:888px)
+{
+  .aaaa1{
+    display: block;
+    height: auto;
+  }
+  .auth-inner3{
+margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

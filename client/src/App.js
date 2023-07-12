@@ -17,6 +17,7 @@ function App() {
       
           <Route exact path="/">
           <div className="Register">
+            
     <Register/>
     </div>
           </Route>

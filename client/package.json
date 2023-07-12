@@ -12,6 +12,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.6.1",
+    "three": "^0.153.0",
     "timeago.js": "^4.0.2",
     "web-vitals": "^2.1.4"
   },
@@ -40,6 +41,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "@types/three": "^0.152.1"
   }
 }

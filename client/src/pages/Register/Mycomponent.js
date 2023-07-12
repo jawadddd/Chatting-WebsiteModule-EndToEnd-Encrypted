@@ -2,6 +2,7 @@ import React, { Component, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from 'axios';
 import './Register.css';
+import myImage from './finalLogo.png';
 
 export default function SignUp() {
   const [file, setFile] = useState(null);
@@ -40,10 +41,21 @@ console.log("files is:",file);
     });    
     }
   return (
-    <div className="outer">
-      <div className="auth-inner">
+    <div className="aaaa1">
+      
+            {/* <video className="videobg" autoPlay muted loop>
+        <source
+          src="https://joy1.videvo.net/videvo_files/video/free/video0469/large_watermarked/_import_617690139ca205.86803720_preview.mp4"
+          type="video/mp4"
+        />
+      </video> */}
+{/* <div className="aaaa1">
+        
+ */}
+ <img className="myyImg" src={myImage} alt="My Image" />
+      <div className="auth-inner3" >
         <form onSubmit={handleSubmit}>
-          <h3>Sign Up</h3>
+          <h1>Sign Up</h1>
         
           <div className="mb-3">
             <label>name</label>
@@ -58,7 +70,7 @@ console.log("files is:",file);
 
 
           <div className="mb-3">
-            <label>Email address</label>
+            <label>UniqueId</label>
             <input
               type="text"
               name="email"
@@ -91,6 +103,8 @@ console.log("files is:",file);
           </p>
         </form>
       </div>
-    </div>
+
+</div>
+      // </div> 
   );
 };
