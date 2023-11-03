@@ -44,21 +44,23 @@ function Login() {
         <form className="threee" onSubmit={handleSubmit}>
           <div className="threee1">
             <label className="input-label">
-              UniqueId
+              Unique Id:
               <input
                 className="input"
                 type="text"
                 value={email}
+                placeholder="Enter Unique Id"
                 onChange={(e) => setEmail(e.target.value)}
               />
             </label>
           </div>
           <div className="threee2">
             <label className="input-label">
-              Password
+              Password:
               <input
                 className="input"
                 type="password"
+                placeholder="Enter Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

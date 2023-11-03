@@ -33,7 +33,7 @@ const io = require("socket.io")(8900, {
     });
   
     //send and get message
-    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+    socket.on("sendMessage", ({ senderId, receiverId, text,timeIs }) => {
       console.log(senderId,receiverId,text);
       const user = getUser(receiverId);
       if(user)
@@ -42,6 +42,7 @@ const io = require("socket.io")(8900, {
         io.to(user.socketId).emit("getMessage", {
           senderId,
           text,
+          timeIs,
         });
   
       }

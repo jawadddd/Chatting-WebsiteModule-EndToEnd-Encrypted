@@ -88,6 +88,9 @@ const MessageSchema = new mongoose.Schema(
     text: {
       type: String,
     },
+    timeIs: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
@@ -120,6 +123,14 @@ app.post("/getMessages", async (req, res) => {
     res.status(500).json(err);
   }
 });
+app.post("/AllMessages", async (req, res) => {
+  try {
+    const messages = await Message.find();
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
 app.post("/getConversations", async (req, res) => {
   try {
@@ -133,25 +144,28 @@ app.post("/getConversations", async (req, res) => {
     //{
     //   members: { $in: [id] },
     // });
-    console.log(conversation,"is");
+    console.log("ji"+conversation,".AB AYA is ME.");
     res.status(200).json(conversation);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 app.post("/AddConversation", async (req, res) => {
+  console.log("Atl east hereee");
+  
   try {
     const myObj=req.body.myObject;
     console.log(myObj);
     const frndEmail=req.body.scndEmail;
     const frndObject= await users.findOne({ email:frndEmail });
     const objectIdString = frndObject._id.toString();
+    console.log("here also");
     if(frndObject)
     {
       console.log(myObj._id);
       console.log(frndObject._id);
       console.log(objectIdString);
-      console.log("came add");
+      console.log("came add!!!!!!!!!!!!!!!!!!!!!!!!!!");
       const newConversationIs = new Conversation({
   members: [myObj._id,objectIdString]
 });
@@ -167,10 +181,17 @@ console.log(savedConversation.members[1]);
 res.status(200).json(savedConversation);
 
     }
+    else{
+      console.log("came hereeee")
+      res.status(500);
+    }
   } catch (err) {
+    console.log("huuuuuu");
     res.status(500).json(err);
   }
 });
+
+
 
 
 app.post('/upload', async(req, res) => {

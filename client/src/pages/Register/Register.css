@@ -1,7 +1,7 @@
 form {
     max-width: 300px;
     margin: 10px auto;
-
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); 
     padding: 50px;
     background-color: transparent;
     border: 1px solid #ccc;
@@ -55,6 +55,7 @@ form h2 {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
+    text-align: start;
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 
   }

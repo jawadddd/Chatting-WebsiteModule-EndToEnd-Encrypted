@@ -58,11 +58,11 @@ console.log("files is:",file);
           <h1>Sign Up</h1>
         
           <div className="mb-3">
-            <label>name</label>
+            <label>Name:</label>
             <input
               type="text"
               className="form-control"
-              placeholder="name"
+              placeholder="Enter name"
               name="name"
               onChange={(e) => setName(e.target.value)}
             />
@@ -70,18 +70,18 @@ console.log("files is:",file);
 
 
           <div className="mb-3">
-            <label>UniqueId</label>
+            <label>Unique Id:</label>
             <input
               type="text"
               name="email"
               className="form-control"
-              placeholder="Enter email"
+              placeholder="Enter Unique Id"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="mb-3">
-            <label>Password</label>
+            <label>Password:</label>
             <input
               type="password"
               name="password"
