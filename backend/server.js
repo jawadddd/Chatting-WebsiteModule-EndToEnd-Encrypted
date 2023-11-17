@@ -29,7 +29,7 @@ app.use('/images', express.static('uploads'));
 
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/WebProjecttt',
+mongoose.connect('mongodb+srv://l201305:vk8LIGpl0UVhroAH@cluster0.nbaphfy.mongodb.net/?retryWrites=true&w=majority',
   {
     useNewUrlParser: true
   }
@@ -155,17 +155,17 @@ app.post("/AddConversation", async (req, res) => {
   
   try {
     const myObj=req.body.myObject;
-    console.log(myObj);
+    // console.log(myObj);
     const frndEmail=req.body.scndEmail;
     const frndObject= await users.findOne({ email:frndEmail });
     const objectIdString = frndObject._id.toString();
-    console.log("here also");
+    // console.log("here also");
     if(frndObject)
     {
-      console.log(myObj._id);
-      console.log(frndObject._id);
-      console.log(objectIdString);
-      console.log("came add!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      // console.log(myObj._id);
+      // console.log(frndObject._id);
+      // console.log(objectIdString);
+      // console.log("came add!!!!!!!!!!!!!!!!!!!!!!!!!!");
       const newConversationIs = new Conversation({
   members: [myObj._id,objectIdString]
 });

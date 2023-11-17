@@ -77,9 +77,10 @@
 }
 
 .chatMessageInput {
-  width: 80%;
-  height: 90px;
+  width: 70%;
+  height: auto;
   padding: 10px;
+  margin-bottom: 1px;
 }
 
 .chatSubmitButton {

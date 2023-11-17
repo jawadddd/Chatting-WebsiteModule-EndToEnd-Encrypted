@@ -72,7 +72,9 @@ export default function Messenger() {
   const [messages, setMessages] = useState([]);
   const [messages2, setMessages2] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+
   const [arrivalMessage, setArrivalMessage] = useState(null);
+
   const [onlineUsers, setOnlineUsers] = useState([]);
   const socket = useRef();
   //const [user, setUser] = useState(userIs);
@@ -81,18 +83,15 @@ export default function Messenger() {
   useEffect(() => {
     socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage", (data) => {
-      
-      
+     
+      console.log("ArrivalMessage:",data);
+
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
         timeIs:data.timeIs,
         createdAt: Date.now(),
       });
-      
-      
-      
-      
     });
   }, []);
   const getAllConversations = async () =>
@@ -112,6 +111,7 @@ export default function Messenger() {
       setMessages((prev) => [...prev, arrivalMessage]) 
       getConversations();
       console.log("conversations are "+conversations+"."); 
+      console.log("ArrivalMessage:",arrivalMessage)
       
   }, [arrivalMessage, currentChat]);
 
@@ -204,6 +204,8 @@ export default function Messenger() {
       (member) => member !== userIs._id
     );
 
+    //Perform encryption here and send encrypted message to api
+    
     try {
       const res = await axios.post("http://localhost:8800/addMessage", message);
       setMessages([...messages, res.data]);
@@ -260,12 +262,13 @@ export default function Messenger() {
                   ))}
                 </div>
                 <div className="chatBoxBottom">
-                  <textarea
+                  <input
+                    type="text"
                     className="chatMessageInput"
                     placeholder="write something..."
                     onChange={(e) => setNewMessage(e.target.value)}
                     value={newMessage}
-                  ></textarea>
+                  ></input>
                   <button className="chatSubmitButton" onClick={handleSubmit}>
                     Send
                   </button>
