@@ -34,7 +34,7 @@ const io = require("socket.io")(8900, {
   
     //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text,timeIs }) => {
-      console.log(senderId,receiverId,text);
+      console.log('inside sendMessage:',senderId,receiverId,text);
       const user = getUser(receiverId);
       if(user)
       {

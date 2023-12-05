@@ -86,7 +86,7 @@ const MessageSchema = new mongoose.Schema(
       type: String,
     },
     text: {
-      type: String,
+      type: [String],  
     },
     timeIs: {
       type: String,
@@ -102,7 +102,7 @@ const Message = mongoose.model("Message", MessageSchema);
 
 app.post("/addMessage", async (req, res) => {
   const newMessage = new Message(req.body);
-
+  // console.log("newMessage::",newMessage)
   try {
     const savedMessage = await newMessage.save();
     res.status(200).json(savedMessage);
@@ -118,6 +118,7 @@ app.post("/getMessages", async (req, res) => {
     const messages = await Message.find({
       conversationId: req.body.conversationId,
     });
+    console.log("messages::",messages)
     res.status(200).json(messages);
   } catch (err) {
     res.status(500).json(err);
@@ -135,23 +136,23 @@ app.post("/AllMessages", async (req, res) => {
 app.post("/getConversations", async (req, res) => {
   try {
     const id=req.body.id;   
-    console.log(id+"get Conversation ");
+    // console.log(id+"get Conversation ");
     
     const conversation = await Conversation.find({ members: { $in: [id] } });
     const collectionName = Conversation.collection.name;
-    console.log(collectionName);
+    // console.log(collectionName);
    
     //{
     //   members: { $in: [id] },
     // });
-    console.log("ji"+conversation,".AB AYA is ME.");
+    // console.log("ji"+conversation,".AB AYA is ME.");
     res.status(200).json(conversation);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 app.post("/AddConversation", async (req, res) => {
-  console.log("Atl east hereee");
+  // console.log("Atl east hereee");
   
   try {
     const myObj=req.body.myObject;
@@ -170,13 +171,13 @@ app.post("/AddConversation", async (req, res) => {
   members: [myObj._id,objectIdString]
 });
 
-console.log("new is :");
-console.log(newConversationIs.members[0]);
-console.log(newConversationIs.members[1]);
+// console.log("new is :");
+// console.log(newConversationIs.members[0]);
+// console.log(newConversationIs.members[1]);
 const savedConversation = await newConversationIs.save();
-console.log("saved is :");
-console.log(savedConversation.members[0]);
-console.log(savedConversation.members[1]);
+// console.log("saved is :");
+// console.log(savedConversation.members[0]);
+// console.log(savedConversation.members[1]);
 
 res.status(200).json(savedConversation);
 
@@ -201,7 +202,7 @@ app.post('/upload', async(req, res) => {
     const email = fields.email;
     const name = fields.name;
     const encryptedPassword = await bcrypt.hash(password, 10);
-console.log(files);
+// console.log(files);
     try {
       const oldUser = await users.findOne({ email });
   
@@ -212,9 +213,9 @@ console.log(files);
   user.name=name;
   user.email=email;
   user.password=encryptedPassword;
-  console.log(email);
+  // console.log(email);
   var oldpath = files.img.filepath;
-    console.log(oldpath);
+    // console.log(oldpath);
     var newpath = __dirname+'/uploads/' + files.img.originalFilename;
     fs.copyFile(oldpath, newpath, (err) => {
       if (err) throw err;
@@ -224,7 +225,7 @@ console.log(files);
       });
     });
   user.save();
-  console.log("came");
+  // console.log("came");
   res.write('ok');
         res.end();
     } catch (error) {
@@ -240,10 +241,10 @@ app.post("/login", async (req, res) => {
   form.parse(req,async function (err, fields, files) {
     const password = fields.password;
     const emailIs = fields.email;
-    console.log("inside login server"+password);
+    // console.log("inside login server"+password);
 try{
   const user = await users.findOne({ email:emailIs });
-  console.log("after inside login server"+user.password,user.email);
+  // console.log("after inside login server"+user.password,user.email);
 
   if (user) {
       if (await bcrypt.compare(password, user.password)) {
@@ -266,11 +267,11 @@ else
 
 app.post("/", async (req, res) => {
   const id=req.body.id;   
-    console.log(id+"maiIs ");
+    // console.log(id+"maiIs ");
 
     try{
   const user = await users.findOne({ _id:id });
-    console.log(user);
+    // console.log(user);
   if (user) {
 
       res.status(200).json(user);

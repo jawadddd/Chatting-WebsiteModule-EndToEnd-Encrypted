@@ -14,8 +14,8 @@ export default function Messenger() {
   
   let location = useLocation();
   const userIs=location.state.state;
-  console.log(userIs._id+"ohoIs");
-  console.log(userIs.email+"ohoIs");
+  // console.log(userIs._id+"ohoIs");
+  // console.log(userIs.email+"ohoIs");
   const [email1, setEmail1] = useState(null);
   
   function deleteConversation(conversationId) {
@@ -36,7 +36,7 @@ export default function Messenger() {
   const handleS = (e) => {
     e.preventDefault();
      setTemp(1);
-    console.log("cameeeee");
+    // console.log("cameeeee");
   
     try {
       axios.post("http://localhost:8800/AddConversation", {
@@ -46,7 +46,7 @@ export default function Messenger() {
       .then((res) => {
         if (res.status === 200) {
           const conversationIs = res.data;
-          console.log(conversationIs);
+          // console.log(conversationIs);
           setConversations([...conversations, conversationIs]);
         } else {
           alert("Can't Add");
@@ -72,6 +72,8 @@ export default function Messenger() {
   const [messages, setMessages] = useState([]);
   const [messages2, setMessages2] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [Msg, setMsg] = useState("");
+  // const [plainTexts, setplainTexts] = useState("");
 
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
@@ -80,15 +82,30 @@ export default function Messenger() {
   //const [user, setUser] = useState(userIs);
   const scrollRef = useRef();
 
-  useEffect(() => {
+   useEffect(() => {
     socket.current = io("ws://localhost:8900");
-    socket.current.on("getMessage", (data) => {
+    socket.current.on("getMessage",async (data) => {
      
-      console.log("ArrivalMessage:",data);
+      var plainTexts="ahmad jalal";
+      try {
+        const response =await axios.post("http://localhost:5000/decrypt_single_message", {
+          text: data.text,
+        });      
+      console.log("Plain Texts:", response.data.decrypted_values);
+        plainTexts = response.data.decrypted_values;
+        
+      
+      } catch (err) {
+        console.log(err);
+      }
+      // console.log("ArrivalMessage:",data);
+      // console.log("Plain Texts:", res.data.plain_text);
 
+      setMsg(plainTexts);
       setArrivalMessage({
         sender: data.senderId,
-        text: data.text,
+        // text: data.text,
+        text: plainTexts,
         timeIs:data.timeIs,
         createdAt: Date.now(),
       });
@@ -105,15 +122,16 @@ export default function Messenger() {
   }
   
   useEffect(() => {
-    
+    console.log("Msg---",Msg)
+    console.log("arrivalMessage---",arrivalMessage)
     arrivalMessage &&
       currentChat?.members.includes(arrivalMessage.sender) &&
       setMessages((prev) => [...prev, arrivalMessage]) 
       getConversations();
-      console.log("conversations are "+conversations+"."); 
-      console.log("ArrivalMessage:",arrivalMessage)
+      // console.log("conversations are "+conversations+"."); 
+      // console.log("ArrivalMessage:",arrivalMessage)
       
-  }, [arrivalMessage, currentChat]);
+  }, [arrivalMessage,currentChat]);
 
   useEffect(() => {
     socket.current.emit("addUser", userIs._id);
@@ -126,17 +144,17 @@ export default function Messenger() {
 
   const getConversations = async () => {
     try {
-      console.log(userIs._id+"oho");
+      // console.log(userIs._id+"oho");
 
       const res = await axios.post("http://localhost:8800/getConversations",{id:userIs._id});
       
       res.data.forEach(conversation => {
-        console.log("conversations2 _id:", conversation._id);
-        console.log("conversations2 members:", conversation.members);
-        console.log("conversations2 createdAt:", conversation.createdAt);
+        // console.log("conversations2 _id:", conversation._id);
+        // console.log("conversations2 members:", conversation.members);
+        // console.log("conversations2 createdAt:", conversation.createdAt);
       });
       setConversations(res.data);
-      console.log(conversations);
+      // console.log(conversations);
 
 
     } catch (err) {
@@ -146,11 +164,11 @@ export default function Messenger() {
   useEffect(() => {
     const getConversations = async () => {
       try {
-        console.log(userIs._id+"oho");
+        // console.log(userIs._id+"oho");
 
         const res = await axios.post("http://localhost:8800/getConversations",{id:userIs._id});
         setConversations(res.data);
-        console.log(res.data);
+        // console.log(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -159,11 +177,25 @@ export default function Messenger() {
   }, [userIs._id]);
 
   useEffect(() => {
+    var res;
     const getMessages = async () => {
       try {
-        const res = await axios.post("http://localhost:8800/getMessages",{conversationId:currentChat?._id} );
-        setMessages(res.data);
-        console.log("msg are "+messages);
+        res = await axios.post("http://localhost:8800/getMessages",{conversationId:currentChat?._id} );
+        // setMessages(res.data);
+        console.log("messages:",res.data);
+        var plainTexts;
+      // try {
+        const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
+          text: res.data,
+        });      
+        plainTexts = response.data.message_text_arr;
+        console.log("Plain message_text_arr1:", plainTexts);
+        setMessages(plainTexts);
+        
+      // } catch (err) {
+      //   console.log(err);
+      // }
+
       } catch (err) {
         console.log(err);
       }
@@ -171,15 +203,24 @@ export default function Messenger() {
     getMessages();
   }, [currentChat]);
 
-
-
   useEffect(() => {
     const getMessages = async () => {
       try {
         //if we have receiver in the messages also then we can get all messages whose sender or receiver is userIs.id for less time consumption purposes
         const res = await axios.post("http://localhost:8800/AllMessages");
-        setMessages2(res.data);
-        console.log("msg are "+messages2);
+        // setMessages2(res.data);
+        // console.log("msg are "+messages2);
+
+        var plainTexts;
+      // try {
+        const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
+          text: res.data,
+        });      
+        plainTexts = response.data.message_text_arr;
+        console.log("Plain message_text_arr2:", plainTexts);
+        setMessages2(plainTexts);
+      
+
       } catch (err) {
         console.log(err);
       }
@@ -187,38 +228,63 @@ export default function Messenger() {
     getMessages();
   }, []);
 
-
-
   const handleSubmit = async (e) => {
     const currentTime = new Date().toLocaleTimeString(); 
 
     e.preventDefault();
+
+      //Perform encryption here and send encrypted message to api
+      var cipherTexts;
+      try {
+        const res = await axios.post("http://localhost:5000/receive_message", {
+          text: newMessage,
+        });      
+        cipherTexts = res.data.cipher_texts;
+        console.log("Cipher Texts:", cipherTexts);
+      
+      } catch (err) {
+        console.log(err);
+      }
+
     const message = {
       sender: userIs._id,
-      text: newMessage,
+      text: cipherTexts,
       timeIs:currentTime,
       conversationId: currentChat._id,
     };
 
     const receiverId = currentChat.members.find(
       (member) => member !== userIs._id
-    );
+    );  
 
-    //Perform encryption here and send encrypted message to api
-    
     try {
       const res = await axios.post("http://localhost:8800/addMessage", message);
-      setMessages([...messages, res.data]);
+      var plainTexts;
+      
+        const response =await axios.post("http://localhost:5000/decrypt_single_message", {
+          text: res.data.text,
+        });      
+        plainTexts = response.data.decrypted_values;
+      console.log("Plain Texts:",plainTexts);
+      console.log("res.data:",res.data)
+      const decryptedTexts = response.data.decrypted_values;
+      const decryptedMessage = {
+        ...res.data,
+        text: decryptedTexts,
+      };
+      setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+
+      // setMessages([...messages, res.data]);
       setNewMessage("");
     } catch (err) {
       console.log(err);
-    }
+    } 
 
     socket.current.emit("sendMessage", {
       senderId: userIs._id,
       receiverId,
       timeIs:currentTime+"",
-      text: newMessage,
+      text: cipherTexts,
     });
   };
 
@@ -228,7 +294,6 @@ export default function Messenger() {
 
   return (
     <>
-     
       <div className="messenger">
         <div className="chatMenu">
           <div className="chatMenuWrapper">
