@@ -1,5 +1,5 @@
-# Chatting-WebsiteModule
-WebModule in which user can send real time messages to any registered user of website,and receive also.All sent received messages against users will be stored in mongo db in encrypted form.
+# Chatting-WebsiteModule-EndToEnd-Encrypted
+WebModule in which user can send real time messages to any registered user of website,and receive also.All sent received messages against users will be encrypted/decrypted and messages will be stored in mongo db in encrypted form.
   
 Four independent layers:  
 1) React ,FrontEnd  
