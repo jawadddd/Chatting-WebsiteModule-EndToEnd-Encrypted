@@ -81,36 +81,83 @@ export default function Messenger() {
   const socket = useRef();
   //const [user, setUser] = useState(userIs);
   const scrollRef = useRef();
+ 
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [encryptionType, setEncryptionType] = useState(null); 
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setEncryptionType(item);
+  };
 
    useEffect(() => {
     socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage",async (data) => {
-     
-      var plainTexts="ahmad jalal";
-      try {
-        const response =await axios.post("http://localhost:5000/decrypt_single_message", {
-          text: data.text,
-        });      
-      console.log("Plain Texts:", response.data.decrypted_values);
-        plainTexts = response.data.decrypted_values;
-        
       
-      } catch (err) {
-        console.log(err);
+      console.log("Encryption Type:",data.encryptiontype)
+      var plainTexts;
+      if(data.encryptiontype === "DES")
+      {
+        try {
+          const response =await axios.post("http://localhost:5000/decrypt_single_message", {
+            text: data.text,
+          });      
+        console.log("Plain Texts:", response.data.decrypted_values);
+          plainTexts = response.data.decrypted_values;
+          
+        
+        } catch (err) {
+          console.log(err);
+        } 
+         setMsg(plainTexts);
+        setArrivalMessage({
+          sender: data.senderId,
+          text: plainTexts,
+          timeIs:data.timeIs,
+          createdAt: Date.now(),
+        });
       }
-      // console.log("ArrivalMessage:",data);
-      // console.log("Plain Texts:", res.data.plain_text);
 
-      setMsg(plainTexts);
-      setArrivalMessage({
-        sender: data.senderId,
-        // text: data.text,
-        text: plainTexts,
-        timeIs:data.timeIs,
-        createdAt: Date.now(),
-      });
+      if(data.encryptiontype === "BlowFish")
+      {
+        try {
+          const response =await axios.post("http://localhost:5000/decrypt_single_messageBlowFish", {
+            text: data.text,
+          });      
+        console.log("Plain Texts:", response.data.decrypted_values);
+        plainTexts = response.data.decrypted_values;
+        } catch (err) {
+          console.log(err);
+        }  
+        setMsg(plainTexts);
+        setArrivalMessage({
+          sender: data.senderId,
+          text: plainTexts,
+          timeIs:data.timeIs,
+          createdAt: Date.now(),
+        });
+      }
+      if(data.encryptiontype === "AES")
+      {
+        try {
+            const response = await axios.post("http://localhost:8800/decrypt",{cipheredArray:data.text} );
+            console.log("Plain Texts:", response.data.decrypted_values);
+            plainTexts = response.data.decrypted_values;
+            plainTexts=plainTexts.replace(/[^ -~]+/g, '');
+          } catch (err) {
+            console.log(err);
+          }
+          setMsg(plainTexts);
+          setArrivalMessage({
+            sender: data.senderId,
+            text: plainTexts,
+            timeIs:data.timeIs,
+            createdAt: Date.now(),
+          });
+      }
     });
   }, []);
+
   const getAllConversations = async () =>
   {
     try {
@@ -180,102 +227,203 @@ export default function Messenger() {
     var res;
     const getMessages = async () => {
       try {
-        res = await axios.post("http://localhost:8800/getMessages",{conversationId:currentChat?._id} );
-        // setMessages(res.data);
-        console.log("messages:",res.data);
+        const res = await axios.post("http://localhost:8800/getMessages", { conversationId: currentChat?._id });
+        console.log("messages:", res.data);
+         
         var plainTexts;
-      // try {
-        const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
-          text: res.data,
-        });      
-        plainTexts = response.data.message_text_arr;
+        for (let i = 0; i < res.data.length; i++) 
+        {
+          if(res.data[i].encryptiontype === "DES")
+          {
+            const response=await axios.post("http://localhost:5000/decrypt_single_message",{
+              text:res.data[i].text
+            } );
+            res.data[i].text=response.data.decrypted_values;
+            // console.log("response.data.decrypted_values:",response.data.decrypted_values)
+          }
+
+          if(res.data[i].encryptiontype === "BlowFish")
+          {
+            console.log("res.data[i].text:",res.data[i].text)
+
+              const response=await axios.post("http://localhost:5000/decrypt_single_message_SenderSideBlowFish",{
+              text:res.data[i].text
+            } );
+            console.log("response.data.decrypted_values:",response.data.decrypted_values)
+            res.data[i].text=response.data.decrypted_values;
+          }
+
+          if(res.data[i].encryptiontype === "AES")
+          {
+            const response=await axios.post("http://localhost:8800/decrypt",{cipheredArray:res.data[i].text} );
+            res.data[i].text=response.data.decrypted_values;
+            res.data[i].text=res.data[i].text.replace(/[^ -~]+/g, '');
+          }
+        }
+        plainTexts = res.data;
         console.log("Plain message_text_arr1:", plainTexts);
         setMessages(plainTexts);
-        
-      // } catch (err) {
-      //   console.log(err);
-      // }
 
       } catch (err) {
         console.log(err);
       }
+      
     };
     getMessages();
   }, [currentChat]);
 
-  useEffect(() => {
-    const getMessages = async () => {
-      try {
-        //if we have receiver in the messages also then we can get all messages whose sender or receiver is userIs.id for less time consumption purposes
-        const res = await axios.post("http://localhost:8800/AllMessages");
-        // setMessages2(res.data);
-        // console.log("msg are "+messages2);
-
-        var plainTexts;
-      // try {
-        const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
-          text: res.data,
-        });      
-        plainTexts = response.data.message_text_arr;
-        console.log("Plain message_text_arr2:", plainTexts);
-        setMessages2(plainTexts);
+  // useEffect(() => {
+  //   const getMessages = async () => {
+  //     // try {
+  //     //   const res = await axios.post("http://localhost:8800/AllMessages");
+        
+  //     //   var plainTexts;  
+  //     //   const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
+  //     //     text: res.data,
+  //     //   });      
+  //     //   plainTexts = response.data.message_text_arr;
+  //     //   console.log("Plain message_text_arr2:", plainTexts);
+  //     //   setMessages2(plainTexts);
       
+  //     // } catch (err) {
+  //     //   console.log(err);
+  //     // }
 
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getMessages();
-  }, []);
+  //     try {
+  //       const res = await axios.post("http://localhost:8800/AllMessages");
+        
+  //       // Filter messages with encryptionType === 'DES'
+  //       const desMessages = res.data.filter(message => message.encryptiontype === 'DES');
+      
+  //       // Send only DES messages to localhost:5000
+  //       if (desMessages.length > 0) {
+  //         const response = await axios.post("http://localhost:5000/receive_message_decrypt", {
+  //           text: desMessages,
+  //         });      
+  //         const plainTexts = response.data.message_text_arr;
+  //         console.log("Plain message_text_arr2:", plainTexts);
+  //         setMessages2(plainTexts);
+  //       } else {
+  //         console.log("No messages with encryptionType === 'DES' found.");
+  //       }
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+      
+  //   };
+  //   getMessages();
+  // }, []);
 
   const handleSubmit = async (e) => {
     const currentTime = new Date().toLocaleTimeString(); 
-
     e.preventDefault();
-
-      //Perform encryption here and send encrypted message to api
       var cipherTexts;
-      try {
-        const res = await axios.post("http://localhost:5000/receive_message", {
-          text: newMessage,
-        });      
-        cipherTexts = res.data.cipher_texts;
-        console.log("Cipher Texts:", cipherTexts);
-      
-      } catch (err) {
-        console.log(err);
-      }
 
+      if(encryptionType === "DES")
+      {
+            try {
+          const res = await axios.post("http://localhost:5000/receive_message", {
+            text: newMessage,
+          });      
+          cipherTexts = res.data.cipher_texts;
+          console.log("Cipher Texts using DES:", cipherTexts);
+        
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      if(encryptionType === "BlowFish")
+      {
+        try {
+          const res = await axios.post("http://localhost:5000/receive_messageBlowFish", {
+            text: newMessage,
+          });      
+          cipherTexts = res.data.cipher_texts;
+          console.log("Cipher Texts using BlowFish:", cipherTexts);
+        
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      if(encryptionType === "AES")
+      {
+        let newMsg2=newMessage;
+        try {
+          const response = await axios.post("http://localhost:8800/encrypt",{newMessage:newMsg2} );
+          console.log("Response After encrypt:",response.data);
+          cipherTexts = response.data;
+          console.log("Received JSON Array:", cipherTexts);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      
+      }
+    
     const message = {
       sender: userIs._id,
       text: cipherTexts,
       timeIs:currentTime,
       conversationId: currentChat._id,
+      encryptiontype: encryptionType,
     };
 
     const receiverId = currentChat.members.find(
       (member) => member !== userIs._id
     );  
-
+      var ETYPE;
     try {
       const res = await axios.post("http://localhost:8800/addMessage", message);
-      var plainTexts;
-      
+      ETYPE=res.data.encryptiontype;
+      console.log("ETYPE:",ETYPE)
+      if(ETYPE === "DES")
+      {
+        var plainTexts; 
         const response =await axios.post("http://localhost:5000/decrypt_single_message", {
           text: res.data.text,
         });      
         plainTexts = response.data.decrypted_values;
-      console.log("Plain Texts:",plainTexts);
-      console.log("res.data:",res.data)
-      const decryptedTexts = response.data.decrypted_values;
-      const decryptedMessage = {
-        ...res.data,
-        text: decryptedTexts,
-      };
-      setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
-
-      // setMessages([...messages, res.data]);
-      setNewMessage("");
+        console.log("Plain Texts:",plainTexts);
+        console.log("res.data:",res.data)
+        const decryptedTexts = response.data.decrypted_values;
+        const decryptedMessage = {
+          ...res.data,
+          text: decryptedTexts,
+        };
+        setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+        setNewMessage("");
+      }
+       if(ETYPE === "BlowFish")
+       {
+            const response =await axios.post("http://localhost:5000/decrypt_single_message_SenderSideBlowFish", {
+              text: res.data.text,
+            });      
+            plainTexts = response.data.decrypted_values;
+          console.log("Plain Texts:",plainTexts);
+          console.log("res.data:",res.data)
+          const decryptedTexts = response.data.decrypted_values;
+          const decryptedMessage = {
+            ...res.data,
+            text: decryptedTexts,
+          };
+          setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+          setNewMessage("");
+       }
+       if(ETYPE === "AES")
+       {
+        const response = await axios.post("http://localhost:8800/decrypt",{cipheredArray:res.data.text} );
+        plainTexts = response.data.decrypted_values;
+        console.log("Decrypted Message:", plainTexts);
+        console.log("res.data:",res.data)
+        let decryptedTexts = response.data.decrypted_values;
+        decryptedTexts=decryptedTexts.replace(/[^ -~]+/g, '');
+        plainTexts=plainTexts.replace(/[^ -~]+/g, '');
+        const decryptedMessage = {
+          ...res.data,
+          text: decryptedTexts,
+        };
+        setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+        setNewMessage("");
+       }
     } catch (err) {
       console.log(err);
     } 
@@ -285,8 +433,10 @@ export default function Messenger() {
       receiverId,
       timeIs:currentTime+"",
       text: cipherTexts,
+      encryptiontype: ETYPE,
     });
   };
+ 
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -303,9 +453,11 @@ export default function Messenger() {
             className="myBox"
             value={email1}
             onChange={(e) => setEmail1(e.target.value)}
-/>
+            />
             <button className="buttonIs" onClick={handleS}>Enter</button>
             </div>
+            
+            
             
             {conversations.map((c) => (
       <div onClick={() => setCurrentChat(c)}>
@@ -334,7 +486,37 @@ export default function Messenger() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     value={newMessage}
                   ></input>
-                  <button className="chatSubmitButton" onClick={handleSubmit}>
+                  <div className="dropdown" >
+                  <button
+                    className="btn btn-secondary dropdown-toggle"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style={{width:"12vw"}}
+                  >
+                    {selectedItem || 'Select Algorithm'}
+                  </button>
+                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li onClick={() => handleItemClick('DES')}>
+                      <a className="dropdown-item">DES</a>
+                    </li>
+                    <li onClick={() => handleItemClick('AES')}>
+                      <a className="dropdown-item">AES</a>
+                    </li>
+                    <li onClick={() => handleItemClick('BlowFish')}>
+                      <a className="dropdown-item">BlowFish</a>
+                    </li>
+                  </ul>
+                  </div>
+                  <button className="chatSubmitButton"
+                   onClick={handleSubmit}
+                   disabled={!encryptionType}
+                   style={{
+                    backgroundColor: !encryptionType ? '#afafaf' : '#22926d',
+                    cursor: !encryptionType ? 'auto' : 'pointer',
+                  }}
+                   >
                     Send
                   </button>
                 </div>
